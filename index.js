@@ -12,6 +12,8 @@ const typeDefs = gql`
     size: Int!
   }
 
+  union Footware = Sneaker | Boot
+
   type Sneaker implements Shue {
     brand: String!
     size: Int!
@@ -31,7 +33,7 @@ const typeDefs = gql`
 
   type Query {
     user: User!
-    shoes(input: ShueInput): [Shue]!
+    shoes(input: ShueInput): [Footware]!
   }
 
   input NesShueInput {
@@ -81,6 +83,12 @@ const resolvers = {
     },
   },
   Shue: {
+    __resolveType(shue) {
+      if (shue.sport) return "Sneaker";
+      return "Boot";
+    },
+  },
+  Footware: {
     __resolveType(shue) {
       if (shue.sport) return "Sneaker";
       return "Boot";
