@@ -7,9 +7,21 @@ const typeDefs = gql`
     friends: [User]!
   }
 
-  type Shue {
+  interface Shue {
     brand: String!
     size: Int!
+  }
+
+  type Sneaker implements Shue {
+    brand: String!
+    size: Int!
+    sport: String
+  }
+
+  type Boot implements Shue {
+    brand: String!
+    size: Int!
+    hasGrip: Boolean
   }
 
   input ShueInput {
@@ -19,7 +31,7 @@ const typeDefs = gql`
 
   type Query {
     user: User!
-    shoes(input: ShueInput): Shue!
+    shoes(input: ShueInput): [Shue]!
   }
 
   input NesShueInput {
@@ -35,14 +47,17 @@ const typeDefs = gql`
 const shues = [
   {
     brand: "nike",
+    sport: "baseball",
     size: 13,
   },
   {
     brand: "puma",
+    sport: "soccer",
     size: 14,
   },
   {
     brand: "adidas",
+    hasGrip: true,
     size: 12,
   },
 ];
@@ -50,9 +65,7 @@ const shues = [
 const resolvers = {
   Query: {
     shoes(_, { input }) {
-      const shue = shues.find((sh) => sh.brand === input.brand);
-      console.log(shue);
-      return shue;
+      return shues;
     },
     user() {
       return {
@@ -65,6 +78,12 @@ const resolvers = {
   Mutation: {
     newShue(_, { input }) {
       return input;
+    },
+  },
+  Shue: {
+    __resolveType(shue) {
+      if (shue.sport) return "Sneaker";
+      return "Boot";
     },
   },
 };
